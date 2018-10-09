@@ -46,6 +46,8 @@ class Controller(object):
             self.pid.reset()
             return 0.0, 0.0, 0.0
 
+        curr_linear_velocity = self.lowpassfilter.filt(curr_linear_velocity)
+        
         # Throttle control
         vel_err = linear_velocity - curr_linear_velocity
         self.last_vel = curr_linear_velocity
