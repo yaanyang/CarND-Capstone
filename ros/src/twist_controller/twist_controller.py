@@ -19,7 +19,7 @@ class Controller(object):
         # PID controller
         # mn: minimum throttle
         # mx: maximun throttle
-        self.pid = PID(kp=0.3, ki=0.1, kd=0.0, mn=0.0, mx=0.2)
+        self.pid = PID(kp=0.3, ki=0.1, kd=0.0, mn=0.0, mx=0.3)
 
         # Low pass filter
         # tau: cut-off frequency
@@ -34,7 +34,7 @@ class Controller(object):
         self.accel_limit = accel_limit
         self.wheel_radius = wheel_radius
 
-        self.last_vel = None
+        self.last_vel = self.lowpassfilter.get()
         self.last_time = rospy.get_time()
 
     def control(self, linear_velocity, angular_velocity, curr_linear_velocity, dbw_enabled):
