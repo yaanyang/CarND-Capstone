@@ -19,7 +19,7 @@ class Controller(object):
         # PID controller
         # mn: minimum throttle
         # mx: maximun throttle
-        self.pid = PID(kp=0.3, ki=0.1, kd=0.002, mn=0.0, mx=0.3)
+        self.pid = PID(kp=0.3, ki=0.1, kd=0.0, mn=0.0, mx=0.2)
 
         # Low pass filter
         # tau: cut-off frequency
