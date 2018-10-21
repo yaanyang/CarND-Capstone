@@ -102,9 +102,11 @@ class TLDetector(object):
                 self.last_state = self.state
                 light_wp = light_wp if state == TrafficLight.RED else -1
                 self.last_wp = light_wp
-                self.upcoming_red_light_pub.publish(Int32(light_wp))  
+                self.upcoming_red_light_pub.publish(Int32(light_wp))
+                rospy.loginfo('!!! %s !!!', CLASS_DICT[self.state]) 
             else:
                 self.upcoming_red_light_pub.publish(Int32(self.last_wp))
+                rospy.loginfo('!!! %s !!!', CLASS_DICT[self.last_state])
                               
             self.state_count += 1
         else:
@@ -139,7 +141,7 @@ class TLDetector(object):
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
-        state = TrafficLight.UNKNOWN
+        state = self.last_state
         
         #Get classification
         boxes, scores, classes, num = self.light_classifier.get_classification(cv_image)
@@ -153,9 +155,7 @@ class TLDetector(object):
             elif classes[0] == 3:
                 state = TrafficLight.YELLOW
             elif classes[0] == 4:
-                state = TrafficLight.UNKNOWN
-            
-        rospy.loginfo('!!! %s !!!', CLASS_DICT[state])
+                state = TrafficLight.UNKNOWN         
         
         return state
 
