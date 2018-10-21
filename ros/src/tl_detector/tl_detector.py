@@ -14,6 +14,7 @@ from scipy.spatial import KDTree
 
 STATE_COUNT_THRESHOLD = 3
 IMAGE_PROCESS_THRESHOLD = 5
+MIN_CLASS_SCORE = 0.5
 
 class TLDetector(object):
     def __init__(self):
@@ -127,17 +128,32 @@ class TLDetector(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
-        """if(not self.has_image):
+        if(not self.has_image):
             self.prev_light_loc = None
             return False
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
         #Get classification
-        #return self.light_classifier.get_classification(cv_image)"""
+        boxes, scores, classes, num = self.light_classifier.get_classification(cv_image)
+
+        class_dict = {1: "Green", 2: "Yellow", 3: "Red", 4: "off"}
+        for i in range(len(num)):
+            if scores[i] > MIN_CLASS_SCORE:
+                if classes[i] == 1:
+                    self.light_state = TrafficLight.GREEN
+                elif classes[i] == 2:
+                    self.light_state = TrafficLight.RED
+                elif classes[i] == 3:
+                    self.light_state = TrafficLight.YELLOW
+                elif classes[i] == 4:
+                    self.light_state = TrafficLight.UNKNOWN
+            rospy.loginfo('Detecting %s Signal!!!', class_dict[classes[i]])
+
+        return self.light_state
 
         # Use simulator state data
-        return light.state
+        #return light.state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
