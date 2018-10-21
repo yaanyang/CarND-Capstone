@@ -102,13 +102,12 @@ class TLDetector(object):
                 self.last_state = self.state
                 light_wp = light_wp if state == TrafficLight.RED else -1
                 self.last_wp = light_wp
-                self.upcoming_red_light_pub.publish(Int32(light_wp))                
+                self.upcoming_red_light_pub.publish(Int32(light_wp))    
+                rospy.loginfo('!!! %s !!!', CLASS_DICT[self.state])                   
             else:
                 self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-            if light_wp == -1:
-                rospy.loginfo('No Traffic Light!!!')
-            else:
-                rospy.loginfo(CLASS_DICT[state])
+                rospy.loginfo('!!! %s !!!', CLASS_DICT[self.last_state])   
+              
             self.state_count += 1
         else:
             self.image_count += 1
