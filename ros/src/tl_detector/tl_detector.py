@@ -14,7 +14,8 @@ from scipy.spatial import KDTree
 
 STATE_COUNT_THRESHOLD = 3
 IMAGE_PROCESS_THRESHOLD = 5
-MIN_CLASS_SCORE = 0.5
+#MIN_CLASS_SCORE = 0.5
+CLASS_DICT = {2: "Green", 0: "Red", 1: "Yellow", 4: "off"}
 
 class TLDetector(object):
     def __init__(self):
@@ -100,8 +101,10 @@ class TLDetector(object):
                 light_wp = light_wp if state == TrafficLight.RED else -1
                 self.last_wp = light_wp
                 self.upcoming_red_light_pub.publish(Int32(light_wp))
+                rospy.loginfo('Detecting %s Signal!!!', CLASS_DICT[self.state])
             else:
                 self.upcoming_red_light_pub.publish(Int32(self.last_wp))
+                rospy.loginfo('Detecting %s Signal!!!', CLASS_DICT[self.last_state])
             self.state_count += 1
         else:
             self.image_count += 1
@@ -133,20 +136,20 @@ class TLDetector(object):
         #Get classification
         boxes, scores, classes, num = self.light_classifier.get_classification(cv_image)
 
-        class_dict = {1: "Green", 2: "Red", 3: "Yellow", 4: "off"}
+        state = self.state
+                
         for i in range(len(num)):
-            if scores[i][0] > MIN_CLASS_SCORE:
-                if classes[i] == 1:
-                    self.state = TrafficLight.GREEN
-                elif classes[i] == 2:
-                    self.state = TrafficLight.RED
-                elif classes[i] == 3:
-                    self.state = TrafficLight.YELLOW
-                elif classes[i] == 4:
-                    self.state = TrafficLight.UNKNOWN
-            rospy.loginfo('Detecting %s Signal!!!', class_dict[classes[i][0]])
+            if classes[i][0] == 1:
+                state = TrafficLight.GREEN
+            elif classes[i][0] == 2:
+                state = TrafficLight.RED
+            elif classes[i][0] == 3:
+                state = TrafficLight.YELLOW
+            elif classes[i][0] == 4:
+                state = TrafficLight.UNKNOWN
+            #rospy.loginfo('%s state: %s, score: %3f', i, classes[i][0], scores[i][0])
 
-        return self.state
+        return state
 
         # Use simulator state data
         #return light.state
