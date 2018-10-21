@@ -13,7 +13,7 @@ import yaml
 from scipy.spatial import KDTree
 
 STATE_COUNT_THRESHOLD = 3
-IMAGE_PROCESS_THRESHOLD = 5
+IMAGE_PROCESS_THRESHOLD = 4
 MIN_CLASS_SCORE = 0.5
 CLASS_DICT = {1: "Green", 2: "Red", 3: "Yellow", 4: "No Traffic Light"}
 
@@ -103,10 +103,10 @@ class TLDetector(object):
                 light_wp = light_wp if state == TrafficLight.RED else -1
                 self.last_wp = light_wp
                 self.upcoming_red_light_pub.publish(Int32(light_wp))
-                rospy.loginfo('!!! %s !!!', CLASS_DICT[self.state]) 
+                #rospy.loginfo('!!! %s !!!', CLASS_DICT[self.state]) 
             else:
                 self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-                rospy.loginfo('!!! %s !!!', CLASS_DICT[self.last_state])
+                #rospy.loginfo('!!! %s !!!', CLASS_DICT[self.last_state])
                               
             self.state_count += 1
         else:
@@ -156,6 +156,7 @@ class TLDetector(object):
                 state = TrafficLight.YELLOW
             elif classes[0] == 4:
                 state = TrafficLight.UNKNOWN         
+        rospy.loginfo('!!! %s !!!', CLASS_DICT[state])
         
         return state
 
