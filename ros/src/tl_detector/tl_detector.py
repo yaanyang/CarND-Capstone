@@ -144,16 +144,16 @@ class TLDetector(object):
         for i in range(len(num)):
             if scores[i][0] > MIN_CLASS_SCORE:
                 if classes[i] == 1:
-                    self.light_state = TrafficLight.GREEN
+                    self.state = TrafficLight.GREEN
                 elif classes[i] == 2:
-                    self.light_state = TrafficLight.RED
+                    self.state = TrafficLight.RED
                 elif classes[i] == 3:
-                    self.light_state = TrafficLight.YELLOW
+                    self.state = TrafficLight.YELLOW
                 elif classes[i] == 4:
-                    self.light_state = TrafficLight.UNKNOWN
+                    self.state = TrafficLight.UNKNOWN
             rospy.loginfo('Detecting %s Signal!!!', class_dict[classes[i][0]])
 
-        return self.light_state
+        return self.state
 
         # Use simulator state data
         #return light.state
