@@ -13,9 +13,8 @@ import yaml
 from scipy.spatial import KDTree
 
 STATE_COUNT_THRESHOLD = 3
-IMAGE_PROCESS_THRESHOLD = 4
+IMAGE_PROCESS_THRESHOLD = 5
 MIN_CLASS_SCORE = 0.5
-CLASS_DICT = {1: "Green", 2: "Red", 3: "Yellow", 4: "No Traffic Light"}
 
 class TLDetector(object):
     def __init__(self):
@@ -75,10 +74,8 @@ class TLDetector(object):
     def image_cb(self, msg):
         """Identifies red lights in the incoming camera image and publishes the index
             of the waypoint closest to the red light's stop line to /traffic_waypoint
-
         Args:
             msg (Image): image from car-mounted camera
-
         """
 
         # Only process 1 image every few 
@@ -86,7 +83,7 @@ class TLDetector(object):
             self.has_image = True
             self.camera_image = msg
 
-            light_wp, state = self.process_traffic_lights()            
+            light_wp, state = self.process_traffic_lights()
             self.image_count = 0
             
             '''
@@ -103,11 +100,8 @@ class TLDetector(object):
                 light_wp = light_wp if state == TrafficLight.RED else -1
                 self.last_wp = light_wp
                 self.upcoming_red_light_pub.publish(Int32(light_wp))
-                #rospy.loginfo('!!! %s !!!', CLASS_DICT[self.state]) 
             else:
                 self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-                #rospy.loginfo('!!! %s !!!', CLASS_DICT[self.last_state])
-                              
             self.state_count += 1
         else:
             self.image_count += 1
@@ -117,23 +111,18 @@ class TLDetector(object):
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
         Args:
             pose (Pose): position to match a waypoint to
-
         Returns:
             int: index of the closest waypoint in self.waypoints
-
         """
         #TODO implement  
         return self.waypoints_tree.query([x, y], 1)[1]
         
     def get_light_state(self, light):
         """Determines the current color of the traffic light
-
         Args:
             light (TrafficLight): light to classify
-
         Returns:
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
-
         """
         if(not self.has_image):
             self.prev_light_loc = None
@@ -141,24 +130,23 @@ class TLDetector(object):
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "rgb8")
 
-        state = self.last_state
-        
         #Get classification
         boxes, scores, classes, num = self.light_classifier.get_classification(cv_image)
 
-        
-        if scores[0][0] > MIN_CLASS_SCORE:
-            if classes[0] == 1:
-                state = TrafficLight.GREEN
-            elif classes[0] == 2:
-                state = TrafficLight.RED
-            elif classes[0] == 3:
-                state = TrafficLight.YELLOW
-            elif classes[0] == 4:
-                state = TrafficLight.UNKNOWN         
-        rospy.loginfo('!!! %s !!!', CLASS_DICT[state])
-        
-        return state
+        class_dict = {1: "Green", 2: "Red", 3: "Yellow", 4: "off"}
+        for i in range(len(num)):
+            if scores[i][0] > MIN_CLASS_SCORE:
+                if classes[i] == 1:
+                    self.state = TrafficLight.GREEN
+                elif classes[i] == 2:
+                    self.state = TrafficLight.RED
+                elif classes[i] == 3:
+                    self.state = TrafficLight.YELLOW
+                elif classes[i] == 4:
+                    self.state = TrafficLight.UNKNOWN
+            rospy.loginfo('Detecting %s Signal!!!', class_dict[classes[i][0]])
+
+        return self.state
 
         # Use simulator state data
         #return light.state
@@ -166,11 +154,9 @@ class TLDetector(object):
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
             location and color
-
         Returns:
             int: index of waypoint closes to the upcoming stop line for a traffic light (-1 if none exists)
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
-
         """
         closest_light = None
         light_wp = None
