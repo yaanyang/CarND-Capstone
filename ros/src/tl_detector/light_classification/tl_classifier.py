@@ -1,3 +1,6 @@
+import tensorflow as tf
+import numpy as np
+
 from styx_msgs.msg import TrafficLight
 
 class TLClassifier(object):
@@ -33,7 +36,7 @@ class TLClassifier(object):
         # Bounding Box Detection.
         with self.detection_graph.as_default():
             # Expand dimension since the model expects image to have shape [1, None, None, 3].
-            img_expanded = np.expand_dims(img, axis=0)  
+            img_expanded = np.expand_dims(image, axis=0)  
             (boxes, scores, classes, num) = self.sess.run(
                 [self.d_boxes, self.d_scores, self.d_classes, self.num_d],
                 feed_dict={self.image_tensor: img_expanded})

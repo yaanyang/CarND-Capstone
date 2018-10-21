@@ -139,7 +139,7 @@ class TLDetector(object):
 
         class_dict = {1: "Green", 2: "Yellow", 3: "Red", 4: "off"}
         for i in range(len(num)):
-            if scores[i] > MIN_CLASS_SCORE:
+            if scores[i][0] > MIN_CLASS_SCORE:
                 if classes[i] == 1:
                     self.light_state = TrafficLight.GREEN
                 elif classes[i] == 2:
@@ -148,7 +148,7 @@ class TLDetector(object):
                     self.light_state = TrafficLight.YELLOW
                 elif classes[i] == 4:
                     self.light_state = TrafficLight.UNKNOWN
-            rospy.loginfo('Detecting %s Signal!!!', class_dict[classes[i]])
+            rospy.loginfo('Detecting %s Signal!!!', class_dict[classes[i][0]])
 
         return self.light_state
 
