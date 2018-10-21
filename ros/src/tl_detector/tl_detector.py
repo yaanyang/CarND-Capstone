@@ -140,7 +140,7 @@ class TLDetector(object):
         #Get classification
         boxes, scores, classes, num = self.light_classifier.get_classification(cv_image)
 
-        class_dict = {1: "Green", 2: "Yellow", 3: "Red", 4: "off"}
+        class_dict = {1: "Green", 2: "Red", 3: "Yellow", 4: "off"}
         for i in range(len(num)):
             if scores[i][0] > MIN_CLASS_SCORE:
                 if classes[i] == 1:
