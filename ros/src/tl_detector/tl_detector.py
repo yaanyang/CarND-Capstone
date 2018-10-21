@@ -15,6 +15,7 @@ from scipy.spatial import KDTree
 STATE_COUNT_THRESHOLD = 3
 IMAGE_PROCESS_THRESHOLD = 5
 MIN_CLASS_SCORE = 0.5
+CLASS_DICT = {1: "Green", 2: "Red", 3: "Yellow", 4: "off"}
 
 class TLDetector(object):
     def __init__(self):
@@ -85,7 +86,7 @@ class TLDetector(object):
             self.has_image = True
             self.camera_image = msg
 
-            light_wp, state = self.process_traffic_lights()
+            light_wp, state = self.process_traffic_lights()            
             self.image_count = 0
             
             '''
@@ -101,9 +102,13 @@ class TLDetector(object):
                 self.last_state = self.state
                 light_wp = light_wp if state == TrafficLight.RED else -1
                 self.last_wp = light_wp
-                self.upcoming_red_light_pub.publish(Int32(light_wp))
+                self.upcoming_red_light_pub.publish(Int32(light_wp))                
             else:
                 self.upcoming_red_light_pub.publish(Int32(self.last_wp))
+            if light_wp == -1:
+                rospy.loginfo('No Traffic Light!!!')
+            else:
+                rospy.loginfo(CLASS_DICT[state])
             self.state_count += 1
         else:
             self.image_count += 1
@@ -140,7 +145,6 @@ class TLDetector(object):
         #Get classification
         boxes, scores, classes, num = self.light_classifier.get_classification(cv_image)
 
-        class_dict = {1: "Green", 2: "Red", 3: "Yellow", 4: "off"}
         for i in range(len(num)):
             if scores[i][0] > MIN_CLASS_SCORE:
                 if classes[i] == 1:
@@ -151,8 +155,7 @@ class TLDetector(object):
                     self.state = TrafficLight.YELLOW
                 elif classes[i] == 4:
                     self.state = TrafficLight.UNKNOWN
-            rospy.loginfo('Detecting %s Signal!!!', class_dict[classes[i][0]])
-
+            
         return self.state
 
         # Use simulator state data
