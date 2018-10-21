@@ -142,16 +142,16 @@ class TLDetector(object):
         #Get classification
         boxes, scores, classes, num = self.light_classifier.get_classification(cv_image)
 
-        for i in range(len(num)):
-            if scores[i][0] > MIN_CLASS_SCORE:
-                if classes[i] == 1:
-                    self.state = TrafficLight.GREEN
-                elif classes[i] == 2:
-                    self.state = TrafficLight.RED
-                elif classes[i] == 3:
-                    self.state = TrafficLight.YELLOW
-                elif classes[i] == 4:
-                    self.state = TrafficLight.UNKNOWN
+        
+        if scores[0][0] > MIN_CLASS_SCORE:
+            if classes[0] == 1:
+                self.state = TrafficLight.GREEN
+            elif classes[0] == 2:
+                self.state = TrafficLight.RED
+            elif classes[0] == 3:
+                self.state = TrafficLight.YELLOW
+            elif classes[0] == 4:
+                self.state = TrafficLight.UNKNOWN
             
         rospy.loginfo('!!! %s !!!', CLASS_DICT[self.state])
         return self.state
