@@ -12,8 +12,11 @@ class TLClassifier(object):
         #TODO load classifier
         if is_site:
             PATH_TO_MODEL = r'light_classification/models/site/frozen_inference_graph.pb'
-        else:
+            rospy.loginfo('Running on Site!')
+        elif not is_site:
             PATH_TO_MODEL = r'light_classification/models/sim/frozen_inference_graph.pb'
+            rospy.loginfo('Running in simulator!')
+        
         self.state = TrafficLight.UNKNOWN
         self.detection_graph = tf.Graph()
         with self.detection_graph.as_default():
@@ -41,7 +44,7 @@ class TLClassifier(object):
 
         """
         #TODO implement light color prediction
-        # Bounding Box Detection.
+        # Bounding Box Detection.        
         with self.detection_graph.as_default():
             # Expand dimension since the model expects image to have shape [1, None, None, 3].
             img_expanded = np.expand_dims(image, axis=0)  
@@ -51,7 +54,7 @@ class TLClassifier(object):
             
             boxes = np.squeeze(boxes)
             scores = np.squeeze(scores)
-            classes = np.squeeze(classes).astype(np.int32)
+            classes = np.squeeze(classes).astype(np.int32)            
                         
             if scores[0] > MIN_SCORE_THRESHOLD:
                 rospy.loginfo('Detecting %s!! Score: %4f', CLASS_DICT[classes[0]], scores[0])
@@ -62,6 +65,6 @@ class TLClassifier(object):
                 elif classes[0] == 3:
                     self.state = TrafficLight.YELLOW
             else:
-                rospy.loginfo('No Traffic Light Detected!!')
-                    
+                rospy.loginfo('No Detection!')
+                                
         return self.state
