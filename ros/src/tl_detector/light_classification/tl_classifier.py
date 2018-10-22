@@ -32,13 +32,10 @@ class TLClassifier(object):
 
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
-
         Args:
             image (cv::Mat): image containing the traffic light
-
         Returns:
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
-
         """
         #TODO implement light color prediction
         # Bounding Box Detection.
@@ -48,6 +45,7 @@ class TLClassifier(object):
             (boxes, scores, classes, num) = self.sess.run(
                 [self.d_boxes, self.d_scores, self.d_classes, self.num_d],
                 feed_dict={self.image_tensor: img_expanded})
+<<<<<<< HEAD
             
             boxes = np.squeeze(boxes)
             scores = np.squeeze(scores)
@@ -65,3 +63,6 @@ class TLClassifier(object):
                 rospy.loginfo('No Traffic Light Detected!!')
                     
         return self.state
+=======
+        return boxes, scores, classes, num
+>>>>>>> f4f7f80694aad79f66b188906643e7dbe638b16a
